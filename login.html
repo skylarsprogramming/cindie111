@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Log in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./js/i18n.js"></script>
+  <script type="module" src="./registration.js"></script>
+  <script type="module" src="./js/google-auth.js"></script>
+  <script type="module">
+    import { trackEvent } from './analytics.js';
+    trackEvent('page_view', { page: 'login' });
+  </script>
+  <script type="module">
+    import { auth, loginEmailPassword, onAuthStateChanged } from './auth.js';
+    import { trackEvent, identifyUser } from './analytics.js';
+    import { signInWithGoogle, reloadUser, isEmailVerified, resetPasswordEmail, setRememberPersistence, sendVerificationEmail } from './auth.js';
+
+    const statusEl = document.getElementById('status');
+    const emailForm = document.getElementById('email-form');
+    const forgotToggle = document.getElementById('forgot-toggle');
+    const forgotPanel = document.getElementById('forgot-panel');
+    const forgotEmailBtn = document.getElementById('forgot-email-btn');
+    const forgotStatus = document.getElementById('forgot-status');
+    // Phone-based login removed
+
+    // Forgot password toggle
+    forgotToggle?.addEventListener('click', () => {
+      const isHidden = forgotPanel.classList.contains('hidden');
+      if (isHidden) {
+        forgotPanel.classList.remove('hidden');
+      } else {
+        forgotPanel.classList.add('hidden');
+      }
+    });
+
+    // Password visibility toggle
+    document.getElementById('toggle-pw')?.addEventListener('click', () => {
+      const pw = document.getElementById('password');
+      if (!pw) return;
+      pw.type = pw.type === 'password' ? 'text' : 'password';
+    });
+
+    // Remove auto-redirect on auth state change for security
+    // Users must complete proper login flow with email verification
+    
+    // Check for URL parameters and display messages
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    if (message) {
+      statusEl.textContent = decodeURIComponent(message);
+      statusEl.className = 'success';
+    }
+
+    emailForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = '';
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember')?.checked;
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true; btn.textContent = 'Logging in...';
+      try {
+        await setRememberPersistence(!!remember);
+        await loginEmailPassword(email, password);
+        await reloadUser();
+        
+        // Strict email verification check
+        if (!isEmailVerified()) {
+          // Sign out user if email is not verified
+          await auth.signOut();
+          statusEl.textContent = 'Please verify your email before logging in. Check your inbox for the verification link.';
+          statusEl.className = 'error';
+          
+          // Show resend verification button
+          const resendBtn = document.createElement('button');
+          resendBtn.textContent = 'Resend Verification Email';
+          resendBtn.className = 'btn ghost';
+          resendBtn.style.marginTop = '8px';
+          resendBtn.onclick = async () => {
+            try {
+              await loginEmailPassword(email, password);
+              await sendVerificationEmail();
+              await auth.signOut();
+              statusEl.textContent = 'Verification email sent! Please check your inbox.';
+              statusEl.className = 'success';
+              resendBtn.remove();
+            } catch (err) {
+              statusEl.textContent = 'Failed to resend verification email.';
+              statusEl.className = 'error';
+            }
+          };
+          statusEl.parentNode.insertBefore(resendBtn, statusEl.nextSibling);
+          return;
+        }
+        
+        identifyUser(auth.currentUser?.uid);
+        trackEvent('login', { method: 'password' });
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        statusEl.textContent = err?.message || 'Login failed';
+        statusEl.className = 'error';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Log in';
+      }
+    });
+
+    // Phone-based login handlers removed
+
+    // Google button handler is provided by js/google-auth.js to avoid duplicate listeners
+
+    // Forgot via email
+    forgotEmailBtn?.addEventListener('click', async () => {
+      forgotStatus.textContent = '';
+      const email = document.getElementById('forgot-email').value.trim();
+      if (!email) { forgotStatus.textContent = 'Enter your email.'; forgotStatus.className = 'error'; return; }
+      const btn = forgotEmailBtn;
+      btn.disabled = true; btn.textContent = 'Sending...';
+      try {
+        await resetPasswordEmail(email);
+        forgotStatus.textContent = 'Password reset email sent. Check your inbox.';
+        forgotStatus.className = 'success';
+      } catch (err) {
+        forgotStatus.textContent = err?.message || 'Failed to send reset email';
+        forgotStatus.className = 'error';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Send reset email';
+      }
+    });
+
+    // Phone-based reset removed
+  </script>
+  <script>
+    // no-op to keep structure aligned with index.html
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <span class="brand-name" data-i18n="brand">CINDIE</span>
+      </div>
+      <nav class="nav">
+        <a href="./signup.html" class="auth btn-signup" data-i18n="nav_signup">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-wrap">
+    <div class="container auth-center">
+      <div class="auth-card">
+        <h1>Дахин тавтай морилно уу</h1>
+        
+
+        <form id="email-form" style="display:flex; flex-direction:column; gap:12px;">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" class="input" type="email" autocomplete="email" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Нууц үг</label>
+            <div class="row">
+              <input id="password" class="input" type="password" autocomplete="current-password" required />
+              <button id="toggle-pw" type="button" class="btn ghost" aria-label="Show password" title="Show/Hide">👁️</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <input id="remember" type="checkbox" />
+              <label for="remember">Remember me</label>
+            </div>
+            <div style="text-align:right;">
+              <a class="link" href="#" id="forgot-toggle">Forgot Password?</a>
+            </div>
+          </div>
+
+          <button id="login-btn" class="btn primary block" type="submit">Log in</button>
+          <div style="height:1px;background:var(--border);margin:12px 0;"></div>
+          <button id="google-login" class="btn ghost block" type="button">Continue with Google</button>
+        </form>
+
+  
+
+        <div id="status" class="status"></div>
+        <p class="auth-muted" style="margin-top:12px;">Шинээр хаяг нээх бол <a class="link" href="signup.html">Энд</a></p>
+
+      </div>
+    </div>
+  </main>
+
+  
+</body>
+</html>
+
+

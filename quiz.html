@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Placement Quiz — CINDIE</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    main { padding-top: 96px; }
+    .quiz-wrap { max-width: 840px; margin: 0 auto; }
+    .card2 { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .q-meta { color: var(--muted); margin-bottom: 8px; font-size: 14px; }
+    .q-title { font-weight: 800; margin-bottom: 8px; font-size: 20px; }
+    .q-title.reading { font-size: 16px; font-weight: 800; color: var(--text); }
+    .q-options { display: grid; gap: 8px; }
+    .q-options label { display: block; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; }
+    .q-controls { display: flex; justify-content: space-between; margin-top: 12px; }
+    .pill { display:inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); font-size: 12px; }
+    .progress { height: 8px; background: rgba(255,255,255,0.08); border-radius: 6px; overflow: hidden; margin: 16px 0 10px; }
+    .progress > span { display:block; height: 100%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); width: 0%; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .passage { font-size: 18px; line-height: 1.7; color: var(--text); background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+  </style>
+  <style>
+    @media (max-width: 560px) {
+      .q-controls { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <a href="./index.html" class="brand-name" style="text-decoration:none;color:inherit" data-i18n="brand">CINDIE</a>
+      </div>
+      <nav class="nav">
+        <a href="./dashboard.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="./course.html" data-i18n="nav_course">My Course</a>
+        <a href="./games.html" data-i18n="nav_games">Games</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="quiz-wrap">
+      <h1>Placement Quiz</h1>
+      <p class="muted">15 questions across grammar, reading, and listening. Takes ~5 minutes.</p>
+
+      <div class="progress"><span id="bar"></span></div>
+      <div class="pill" id="pill">Question 1 / 15 • Grammar</div>
+
+      <div class="card2" id="quiz-card" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <script src="./js/ai.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script type="module" src="./js/n8n-integration.js"></script>
+  <script type="module">
+    import authGuard from './js/auth-guard.js';
+    
+    // Protect the quiz page
+    authGuard.showAuthLoading();
+    const canAccess = await authGuard.protectPage();
+    if (!canAccess) {
+      return; // Will redirect to login
+    }
+    authGuard.hideAuthLoading();
+  </script>
+  <script src="./js/quiz.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Course — CINDIE</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    main { padding-top: 96px; }
+    .row { display: grid; grid-template-columns: 1fr 2fr; gap: 18px; }
+    .card2 { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .modules { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .mod { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: rgba(255,255,255,0.03); }
+    .muted { color: var(--muted); }
+    .activity { display: inline-block; margin: 6px 6px 0 0; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--border); font-size: 12px; }
+  </style>
+  <style>
+    @media (max-width: 900px) {
+      .row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .modules { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <a href="./index.html" class="brand-name" style="text-decoration:none;color:inherit" data-i18n="brand">CINDIE</a>
+      </div>
+      <nav class="nav">
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>My Personalized Course</h1>
+    <p class="muted">Based on your quiz results. Click a module to start an interactive activity.</p>
+
+    <div id="summary" class="card2" style="margin: 12px 0"></div>
+    <div id="modules" class="modules"></div>
+
+    <div id="activity" class="card2" style="margin-top: 16px; display:none"></div>
+  </main>
+
+  <script src="./js/ai.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script type="module" src="./js/n8n-integration.js"></script>
+  <script type="module">
+    import authGuard from './js/auth-guard.js';
+    
+    // Protect the course page
+    authGuard.showAuthLoading();
+    const canAccess = await authGuard.protectPage();
+    if (!canAccess) {
+      return; // Will redirect to login
+    }
+    authGuard.hideAuthLoading();
+  </script>
+  <script src="./js/course.js"></script>
+</body>
+</html>
+

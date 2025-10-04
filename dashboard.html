@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./js/i18n.js"></script>
+  <script type="module">
+    import { auth, onAuthStateChanged, getIdToken, logout } from './auth.js';
+    import { trackEvent, identifyUser } from './analytics.js';
+    import authGuard from './js/auth-guard.js';
+
+    // Show loading while checking authentication
+    authGuard.showAuthLoading();
+
+    // Protect the dashboard page
+    const canAccess = await authGuard.protectPage();
+    if (!canAccess) {
+      return; // Will redirect to login
+    }
+
+    authGuard.hideAuthLoading();
+
+    // User is authenticated and email verified, proceed with dashboard
+    trackEvent('page_view', { page: 'dashboard' });
+    
+    const user = auth.currentUser;
+    identifyUser(user.uid);
+      const who = document.getElementById('whoami');
+      if (who) who.textContent = user.email || '—';
+
+      // Load dashboard state
+      let state = null;
+      try { state = JSON.parse(localStorage.getItem('cindie_dashboard') || 'null'); } catch (_) {}
+      if (!state) {
+        state = { keepLearning: { course: '', progress: 0 }, subjects: [], weeklyTarget: { targetDays: 3, completedDays: 0, days: { monday:false,tuesday:false,wednesday:false,thursday:false,friday:false,saturday:false,sunday:false } } };
+      }
+      // Render keep learning
+      try {
+        const token = await getIdToken();
+        if (token) {
+          const res = await fetch('http://localhost:4000/api/course', { headers: { Authorization: `Bearer ${token}` }, credentials: 'include' });
+          if (res.ok) {
+            const course = await res.json();
+            if (course && course.plan) {
+              const title = course.plan.level + ' • ' + (course.plan.focus?.[0] || 'English');
+              const pct = course.progress?.overallPercent || 0;
+              document.getElementById('kl-course').textContent = title;
+              document.getElementById('kl-progress-bar').style.width = pct + '%';
+              document.getElementById('kl-progress-text').textContent = pct + '% complete';
+            }
+          }
+        }
+      } catch (_) {}
+      // Render subjects
+      const sub = document.getElementById('subjects');
+      sub.innerHTML = '';
+      (state.subjects||[]).forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'card-inner';
+        div.innerHTML = `<div class="card-title">${s.name}</div><div class="auth-muted">XP: ${s.xp||0}</div>`;
+        sub.appendChild(div);
+      });
+      // Weekly target
+      const days = state.weeklyTarget?.days || {};
+      const map = { monday:'Mon', tuesday:'Tue', wednesday:'Wed', thursday:'Thu', friday:'Fri', saturday:'Sat', sunday:'Sun' };
+      Object.entries(map).forEach(([key, label]) => {
+        const el = document.getElementById(`day-${key}`);
+        if (el) el.className = days[key] ? 'btn primary' : 'btn ghost';
+      });
+    });
+
+    document.addEventListener('click', async (e) => {
+      if (e.target.id === 'logout') {
+        e.preventDefault();
+        await logout(); window.location.href = 'login.html';
+      }
+      if (e.target.id === 'load-protected') {
+        const out = document.getElementById('protected');
+        out.textContent = 'Loading...';
+      const token = await getIdToken();
+        if (!token) { out.textContent = 'Not authenticated'; return; }
+      try {
+          const res = await fetch('http://localhost:4000/api/protected', { headers: { Authorization: `Bearer ${token}` } });
+        const json = await res.json();
+          out.textContent = JSON.stringify(json, null, 2);
+        } catch (err) {
+          out.textContent = String(err);
+        }
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <span class="brand-name" data-i18n="brand">CINDIE</span>
+      </div>
+      <nav class="nav">
+        <a href="./quiz.html" data-i18n="nav_quiz">Placement Quiz</a>
+        <a href="./course.html" data-i18n="nav_course">My Course</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-wrap" style="padding-top:100px;">
+    <div class="container dashboard-two-col" style="display:grid; grid-template-columns: 240px 1fr; gap:20px;">
+      <aside>
+        <div class="feature" style="position:sticky; top:90px;">
+          <h3>Menu</h3>
+          <nav class="grid" style="grid-template-columns: 1fr; gap:8px;">
+            <a class="btn ghost" href="#">Dashboard</a>
+            <a class="btn ghost" href="#">My learning</a>
+            <a class="btn ghost" href="#">Games</a>
+            <a class="btn ghost" href="#">Pronunciation practice</a>
+            <a class="btn ghost" href="#">Speaking buddy finder</a>
+          </nav>
+        </div>
+      </aside>
+
+      <section class="grid" style="grid-template-columns: 1fr; gap:18px;">
+        <div class="feature">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3>Keep learning</h3>
+              <p class="auth-muted" id="kl-course" style="margin:6px 0 0;">—</p>
+            </div>
+            <button class="btn primary" id="resume">Resume</button>
+            <button class="btn ghost" id="start-course" style="margin-left:8px;">Start Course</button>
+          </div>
+          <div style="margin-top:12px;">
+            <div style="height:10px; background: rgba(255,255,255,0.08); border:1px solid var(--border); border-radius:999px; overflow:hidden;">
+              <div id="kl-progress-bar" style="width:0%; height:100%; background: linear-gradient(135deg, var(--accent), var(--accent-2));"></div>
+            </div>
+            <div class="auth-muted" id="kl-progress-text" style="margin-top:6px;">0% complete</div>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:10px;">
+            <button class="btn ghost" id="view-all">View all learning in progress</button>
+          </div>
+        </div>
+
+        <div class="feature">
+          <h3>Explore opportunities</h3>
+          <p class="auth-muted" style="margin:6px 0 12px;">Get personalized english parctices, connect with people who has similar interests, and more with AI services.</p>
+          <button class="btn primary" id="get-started">Get started</button>
+        </div>
+
+        <div class="feature">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Progress</h3>
+            <select class="input" style="max-width:180px;">
+              <option>Most progress</option>
+              <option>Least progress</option>
+            </select>
+          </div>
+          <div id="subjects" class="grid dashboard-cards-2" style="grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px;"></div>
+        </div>
+
+        <div class="feature">
+          <h3>Weekly target</h3>
+          <div class="auth-muted">Target: 3 days • Completed: 1</div>
+          <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+            <div id="day-monday" class="btn ghost" style="padding:6px 10px;">Mon</div>
+            <div id="day-tuesday" class="btn ghost" style="padding:6px 10px;">Tue</div>
+            <div id="day-wednesday" class="btn ghost" style="padding:6px 10px;">Wed</div>
+            <div id="day-thursday" class="btn ghost" style="padding:6px 10px;">Thu</div>
+            <div id="day-friday" class="btn ghost" style="padding:6px 10px;">Fri</div>
+            <div id="day-saturday" class="btn ghost" style="padding:6px 10px;">Sat</div>
+            <div id="day-sunday" class="btn ghost" style="padding:6px 10px;">Sun</div>
+          </div>
+        </div>
+
+        <div class="feature">
+          <h3>Learning activity</h3>
+          <div id="activity" class="grid dashboard-cards-2" style="grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="card-inner"><div class="card-title">Questions answered</div><div id="a-questions" class="auth-muted">0</div></div>
+            <div class="card-inner"><div class="card-title">Correct answers</div><div id="a-correct" class="auth-muted">0</div></div>
+            <div class="card-inner"><div class="card-title">MCQ sessions</div><div id="a-mcq" class="auth-muted">0</div></div>
+            <div class="card-inner"><div class="card-title">Pronunciation sessions</div><div id="a-pron" class="auth-muted">0</div></div>
+          </div>
+          <div style="margin-top:8px;" class="auth-muted">Recent</div>
+          <div id="recent" class="grid" style="grid-template-columns: 1fr 1fr; gap:10px;"></div>
+        </div>
+
+        <div class="feature">
+          <h3>Protected API demo</h3>
+          <button class="btn ghost" id="load-protected" type="button">Load protected data</button>
+          <pre id="protected" style="margin-top:10px; background: #0b1020; color: #d1e7ff; padding: 14px; border-radius: 8px; overflow: auto;"></pre>
+        </div>
+
+        <div class="auth-muted">Signed in as: <span id="whoami">—</span> • <a href="#" id="logout" class="link">Log out</a></div>
+      </section>
+      <section class="grid" style="grid-template-columns: 1fr; gap:18px;">
+        <div class="feature">
+          <h3>Recommended courses</h3>
+          <div id="recs" class="grid dashboard-cards-2" style="grid-template-columns: 1fr 1fr; gap:12px; margin-top:10px;"></div>
+        </div>
+      </section>
+
+      <section class="grid" style="grid-template-columns: 1fr; gap:18px;">
+        <div class="feature">
+          <h3>Suggested courses</h3>
+          <div class="grid dashboard-cards-3" style="grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-top:10px;">
+            <a href="#" class="card-inner course-suggestion" data-course="English A2">
+              <div class="card-title">English A2</div>
+              <div class="auth-muted">Beginner-Elementary pathway</div>
+            </a>
+            <a href="#" class="card-inner course-suggestion" data-course="IELTS Preparation">
+              <div class="card-title">IELTS Preparation</div>
+              <div class="auth-muted">Academic & General Training</div>
+            </a>
+            <a href="#" class="card-inner course-suggestion" data-course="Effective Reading">
+              <div class="card-title">Effective Reading</div>
+              <div class="auth-muted">Comprehension & Speed</div>
+            </a>
+            <a href="#" class="card-inner course-suggestion" data-course="English B1">
+              <div class="card-title">English B1</div>
+              <div class="auth-muted">Pre‑Intermediate skills</div>
+            </a>
+            <a href="#" class="card-inner course-suggestion" data-course="Academic Writing">
+              <div class="card-title">Academic Writing</div>
+              <div class="auth-muted">Essays, structure, style</div>
+            </a>
+            <a href="#" class="card-inner course-suggestion" data-course="Business English">
+              <div class="card-title">Business English</div>
+              <div class="auth-muted">Meetings, emails, presentations</div>
+            </a>
+          </div>
+        </div>
+      </section>
+  </div>
+  </main>
+  <script>
+    (function(){
+      try {
+        const node = document.getElementById('recs');
+        if (!node) return;
+        const recs = JSON.parse(localStorage.getItem('cindie_recommendations') || '[]');
+        node.innerHTML = '';
+        recs.slice(0,4).forEach(r => {
+          const a = document.createElement('a');
+          a.href = 'course-portal.html';
+          a.className = 'card-inner';
+          a.style.textDecoration = 'none';
+          a.innerHTML = `<div class="card-title">${r.title}</div><div class="auth-muted">Focus: ${r.focus || '-'}</div>`;
+          node.appendChild(a);
+        });
+      } catch (_) {}
+    })();
+    // suggestions handler
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest && e.target.closest('.course-suggestion');
+      if (!el) return;
+      e.preventDefault();
+      const title = el.getAttribute('data-course') || 'Course';
+      const done = localStorage.getItem('cindie_quiz_completed') === '1';
+      if (!done) { window.location.href = 'quiz.html'; return; }
+      try {
+        const dash = JSON.parse(localStorage.getItem('cindie_dashboard') || '{}');
+        if (dash.keepLearning) dash.keepLearning.course = title;
+        localStorage.setItem('cindie_dashboard', JSON.stringify(dash));
+      } catch (_) {}
+      window.location.href = 'course-portal.html';
+    });
+  </script>
+  <script>
+    // Enforce placement test before starting a course
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'start-course') {
+        const done = localStorage.getItem('cindie_quiz_completed') === '1';
+        if (!done) {
+          window.location.href = 'quiz.html';
+        } else {
+          window.location.href = 'course-portal.html';
+        }
+      }
+    });
+  </script>
+  <script>
+    // Render learning activity stats
+    (function(){
+      try {
+        const act = JSON.parse(localStorage.getItem('cindie_activity') || 'null');
+        if (!act) return;
+        const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = String(val); };
+        setText('a-questions', act.totals?.questions || 0);
+        setText('a-correct', act.totals?.correct || 0);
+        setText('a-mcq', act.totals?.mcqSessions || 0);
+        setText('a-pron', act.totals?.pronunciationSessions || 0);
+        const recent = document.getElementById('recent');
+        if (recent) {
+          recent.innerHTML = '';
+          (act.recent || []).slice(0, 6).forEach(r => {
+            const d = document.createElement('div');
+            d.className = 'card-inner';
+            const when = new Date(r.ts || Date.now()).toLocaleString();
+            d.innerHTML = `<div class="card-title">${r.type === 'mcq' ? 'MCQ' : 'Activity'}</div><div class="auth-muted">${when} • ${r.correct ? 'Correct' : 'Attempt'} ${r.detail ? '• ' + r.detail : ''}</div>`;
+            recent.appendChild(d);
+          });
+        }
+      } catch (_) {}
+    })();
+  </script>
+</body>
+</html>
+
+

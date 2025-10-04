@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script>
+      window.__ENV__ = {
+        FIREBASE_API_KEY: (document.currentScript?.dataset?.apiKey || ''),
+        FIREBASE_AUTH_DOMAIN: (document.currentScript?.dataset?.authDomain || ''),
+        FIREBASE_PROJECT_ID: (document.currentScript?.dataset?.projectId || ''),
+        FIREBASE_STORAGE_BUCKET: (document.currentScript?.dataset?.storageBucket || ''),
+        FIREBASE_MESSAGING_SENDER_ID: (document.currentScript?.dataset?.messagingSenderId || ''),
+        FIREBASE_APP_ID: (document.currentScript?.dataset?.appId || ''),
+        FIREBASE_MEASUREMENT_ID: (document.currentScript?.dataset?.measurementId || ''),
+      }
+    </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cindie – Learn English with AI</title>
+  <meta name="description" content="Learn English with AI: placement quiz, personalized course, games, and pronunciation coach.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <span class="brand-name" data-i18n="brand">CINDIE</span>
+      </div>
+      <nav class="nav">
+        <a href="./course.html" data-i18n="nav_course">Courses</a>
+        <a href="./login.html" class="auth" data-i18n="nav_login">Login</a>
+        <a href="./signup.html" class="auth btn-signup" data-i18n="nav_signup">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <canvas id="starfield" aria-hidden="true"></canvas>
+      <div class="container hero-inner">
+        <div class="copy">
+          <h1><span class="accent" data-i18n="hero_title_part1">Learn English</span> <span data-i18n="hero_title_part2">with AI</span></h1>
+          <p class="subtitle" data-i18n="hero_subtitle">Smart placement quiz, personalized interactive course, fun games, and a pronunciation coach.</p>
+          <div class="cta-row">
+            <a class="btn primary" href="./signup.html" data-i18n="cta_start_quiz">Start Placement Quiz</a>
+            <a class="btn ghost" href="./games.html" data-i18n="cta_play_games">Play Games</a>
+            <a class="btn ghost" href="./pronunciation.html" data-i18n="cta_improve_pronunciation">Improve Pronunciation</a>
+          </div>
+        </div>
+        <div class="scene" id="parallax-scene">
+          <div class="card layer" data-depth="0.04">
+            <div class="card-inner">
+              <div class="card-title">Grammar</div>
+              <div class="card-body">Master tenses and articles with bite-sized drills.</div>
+            </div>
+          </div>
+          <div class="card layer" data-depth="0.08">
+            <div class="card-inner">
+              <div class="card-title">Reading</div>
+              <div class="card-body">Understand texts with adaptive questions.</div>
+            </div>
+          </div>
+          <div class="card layer" data-depth="0.12">
+            <div class="card-inner">
+              <div class="card-title">Listening</div>
+              <div class="card-body">Hear and respond using natural speech.</div>
+            </div>
+          </div>
+          <div class="card layer" data-depth="0.16">
+            <div class="card-inner">
+              <div class="card-title">Speaking</div>
+              <div class="card-body">Practice pronunciation with real-time feedback.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="scroll-cta" href="#features" aria-label="Scroll to features">⌄</a>
+    </section>
+
+    <section id="features" class="features">
+      <div class="container grid">
+        <div class="feature">
+          <div class="icon">🧪</div>
+          <h3 data-i18n="features_quiz_title">Placement Quiz</h3>
+          <p data-i18n="features_quiz_desc">15 smart questions in grammar, reading, and listening to find your level.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🧭</div>
+          <h3 data-i18n="features_course_title">Personalized Course</h3>
+          <p data-i18n="features_course_desc">AI generates lessons tailored to your strengths and gaps.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🎮</div>
+          <h3 data-i18n="features_games_title">Mini Games</h3>
+          <p data-i18n="features_games_desc">Learn through play with word match and sentence builder.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🎙️</div>
+          <h3 data-i18n="features_pron_title">Pronunciation Coach</h3>
+          <p data-i18n="features_pron_desc">Speak and get instant feedback using your browser’s microphone.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><span data-i18n="footer_made">Made with ❤️ for learners.</span> <span id="year"></span> Cindie</p>
+    </div>
+  </footer>
+
+  <script src="./js/parallax.js"></script>
+  <script src="./js/ai.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script>
+    document.querySelector('#year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
+

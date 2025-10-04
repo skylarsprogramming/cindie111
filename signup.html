@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <!-- Firebase config now handled by google-auth.js -->
+  <script type="module" src="./registration.js"></script>
+  <script type="module" src="./js/google-auth.js"></script>
+  <script type="module">
+    import { trackEvent } from './analytics.js';
+    trackEvent('page_view', { page: 'signup' });
+  </script>
+  <script type="module">
+    import { auth, registerEmailPassword, onAuthStateChanged } from './auth.js';
+    import { trackEvent, identifyUser } from './analytics.js';
+    import { sendVerificationEmail, signInWithGoogle } from './auth.js';
+
+    const formEl = document.getElementById('signup-form');
+    const statusEl = document.getElementById('status');
+
+    // Remove auto-redirect on auth state change for security
+    // Users must complete proper sign-up flow
+
+    formEl?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = '';
+      statusEl.className = '';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+
+      if (!email || !password) {
+        statusEl.textContent = 'Email and password are required.';
+        statusEl.className = 'error';
+        return;
+      }
+      if (password !== confirm) {
+        statusEl.textContent = 'Passwords do not match.';
+        statusEl.className = 'error';
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating account...';
+      try {
+        await registerEmailPassword(email, password);
+        await sendVerificationEmail();
+        
+        // Sign out user immediately after registration for security
+        await auth.signOut();
+        
+        trackEvent('sign_up', { method: 'email' });
+        statusEl.textContent = 'Account created! Please check your email and click the verification link, then log in.';
+        statusEl.className = 'success';
+        
+        // Redirect to login after successful signup
+        setTimeout(() => {
+          window.location.href = 'login.html?message=Please verify your email and log in.';
+        }, 3000);
+        
+      } catch (err) {
+        statusEl.textContent = err?.message || 'Sign up failed';
+        statusEl.className = 'error';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create account';
+      }
+    });
+
+    // removed phone verification flow
+
+    // Google button handler is provided by js/google-auth.js to avoid duplicate listeners
+  </script>
+  <script>
+    // keep structure similar to index.html
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <span class="brand-name" data-i18n="brand">CINDIE</span>
+      </div>
+      <nav class="nav">
+        <a href="./login.html" class="auth" data-i18n="nav_login">Нэвтрэх</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-wrap">
+    <div class="container auth-center">
+      <div class="auth-card">
+        <h1>Хаяг бүртгүүлэх</h1>
+        <form id="signup-form">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" class="input" type="email" autocomplete="email" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Нууц үг</label>
+            <input id="password" class="input" type="password" autocomplete="new-password" required />
+          </div>
+
+          <div class="field">
+            <label for="confirm">Нууц үг дахин давтах</label>
+            <input id="confirm" class="input" type="password" autocomplete="new-password" required />
+          </div>
+
+          <button id="submit-btn" class="btn primary block" type="submit">Хаяг бүртгүүлэх</button>
+          <button id="google-signup" class="btn ghost" type="button" style="margin-top:8px;">Google-р нэвтрэх</button>
+        </form>
+
+        
+
+        <div id="status" class="status"></div>
+
+        <p class="auth-muted" style="margin-top:12px;">Аль хэдийнээ бүртгүүлчихсэн юм биш биз?
+          <a class="link" href="login.html" data-i18n="nav_login">Нэвтрэх</a></p>
+      </div>
+    </div>
+  </main>
+
+  
+</body>
+</html>
+
+

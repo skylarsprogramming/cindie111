@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-dark-300 text-white;
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-neon-pink to-neon-purple text-white font-bold py-3 px-6 rounded-lg 
+           hover:from-neon-purple hover:to-neon-pink transition-all duration-300 transform hover:scale-105 
+           hover:shadow-lg hover:shadow-neon-pink/50 active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-dark-100 border-2 border-neon-blue text-neon-blue font-bold py-3 px-6 rounded-lg 
+           hover:bg-neon-blue hover:text-dark-300 transition-all duration-300 transform hover:scale-105 
+           hover:shadow-lg hover:shadow-neon-blue/50 active:scale-95;
+  }
+  
+  .card {
+    @apply bg-dark-100 border border-gray-800 rounded-xl p-6 backdrop-blur-sm;
+  }
+  
+  .neon-glow {
+    @apply shadow-lg shadow-neon-pink/30;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-neon-pink to-neon-blue bg-clip-text text-transparent;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

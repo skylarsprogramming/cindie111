@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Games — CINDIE</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    main { padding-top: 96px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card2 { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .muted { color: var(--muted); }
+    .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+    .tile { padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,0.03); cursor: pointer; text-align: center; }
+    .sentence { display:flex; flex-wrap: wrap; gap:8px; margin-top: 8px; min-height: 40px; }
+    .word { padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,0.04); cursor: pointer; }
+  </style>
+  <style>
+    @media (max-width: 720px) {
+      .grid2 { grid-template-columns: 1fr; }
+      .tiles { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .tiles { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <a href="./index.html" class="brand-name" style="text-decoration:none;color:inherit" data-i18n="brand">CINDIE</a>
+      </div>
+      <nav class="nav">
+        <a href="./quiz.html" data-i18n="nav_quiz">Placement Quiz</a>
+        <a href="./course.html" data-i18n="nav_course">My Course</a>
+        <a href="./pronunciation.html" data-i18n="nav_pronunciation">Pronunciation</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>Games</h1>
+    <p class="muted">Practice vocabulary and sentence structure through play.</p>
+
+    <div class="grid2">
+      <div class="card2">
+        <h3>Word Match</h3>
+        <p class="muted">Match words to their meanings.</p>
+        <div id="match"></div>
+      </div>
+      <div class="card2">
+        <h3>Sentence Builder</h3>
+        <p class="muted">Tap words to build a correct sentence.</p>
+        <div id="builder"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="./js/i18n.js"></script>
+  <script src="./js/games.js"></script>
+</body>
+</html>
+

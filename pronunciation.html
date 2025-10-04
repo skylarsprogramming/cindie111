@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pronunciation Coach — CINDIE</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    main { padding-top: 96px; }
+    .card2 { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .muted { color: var(--muted); }
+    .surface { display:flex; align-items:center; gap:10px; }
+    .transcript { white-space: pre-wrap; font-family: ui-monospace, monospace; background: rgba(255,255,255,0.04); padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <a href="./index.html" class="brand-name" style="text-decoration:none;color:inherit" data-i18n="brand">CINDIE</a>
+      </div>
+      <nav class="nav">
+        <a href="./course.html" data-i18n="nav_course">My Course</a>
+        <a href="./games.html" data-i18n="nav_games">Games</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>Pronunciation Coach</h1>
+    <p class="muted">Practice by shadowing phrases. We compare what you say with the target text and give simple feedback. Optionally enable AI feedback with Leon for targeted tips.</p>
+
+    <div class="card2">
+      <div class="surface">
+        <select id="phrase"></select>
+        <button class="btn ghost" id="play">Play</button>
+        <button class="btn primary" id="record">Start Recording</button>
+      </div>
+      <div style="margin-top:8px" class="muted">Transcript:</div>
+      <div id="live" class="transcript" style="min-height: 40px"></div>
+      <div id="feedback" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card2" style="margin-top:14px;">
+      <h3 style="margin-top:0;">AI Feedback (Leon)</h3>
+      <div class="surface" style="margin-bottom:8px;">
+        <label style="display:flex; align-items:center; gap:8px;">
+          <input id="ai-enabled" type="checkbox" /> Enable AI tips
+        </label>
+      </div>
+      <div class="surface">
+        <input id="leon-url" class="input" style="flex:1;" placeholder="http://localhost:1337/api/voiceover" />
+        <button class="btn ghost" id="save-leon">Save</button>
+      </div>
+      <p class="muted" style="margin-top:8px;">Requires Leon VoiceOver server. See <a class="link" href="https://docs.getleon.ai" target="_blank" rel="noopener">Leon docs</a>. If unavailable, the app falls back to local scoring.</p>
+    </div>
+  </main>
+
+  <script src="./js/ai.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/pronunciation.js"></script>
+</body>
+</html>
+

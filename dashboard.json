@@ -1,0 +1,49 @@
+{
+  "dashboard": {
+    "menu": [
+      "Dashboard",
+      "My learning",
+      "Skills tracking",
+      "Events",
+      "games",
+      "pronunciation practice"
+      "speaking buddy finder"
+    ],
+    "keep_learning": {
+      "course": "Intro to perfect tenses",
+      "progress": "45%",
+      "resume_button": true,
+      "view_all_learning_in_progress": true
+    },
+    "explore_job_opportunities": {
+      "description": "Get personalized english parctices, connect with people who has similar interests, and more with AI services.",
+      "button": "Get started"
+    },
+    "progress": {
+      "subjects_and_languages": [
+        {
+          "subject": "ielts preparation",
+          "xp": 1374
+        },
+        {
+          "subject": "english b2",
+          "xp": 1256
+        }
+      ],
+      "sort_option": "Most progress"
+    },
+    "weekly_target": {
+      "completed_days": 1,
+      "target_days": 3,
+      "days": {
+        "monday": false,
+        "tuesday": true,
+        "wednesday": false,
+        "thursday": false,
+        "friday": false,
+        "saturday": false,
+        "sunday": false
+      }
+    }
+  }
+}

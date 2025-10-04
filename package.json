@@ -1,0 +1,18 @@
+{
+  "name": "cindie-language-app",
+  "version": "1.0.0",
+  "description": "Modern language learning platform with interactive courses, games, and pronunciation practice",
+  "private": true,
+  "scripts": {
+    "build": "echo Static site - no build step",
+    "start": "npx serve -s ."
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.2.2",
+    "firebase": "^12.3.0",
+    "jose": "^5.9.2",
+    "openai": "^5.23.1",
+    "zod": "^3.23.8"
+  }
+}

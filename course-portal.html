@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Course Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    .page { padding-top: 90px; }
+    .two-col { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+    .surface { border: 1px solid var(--border); background: var(--card); border-radius: 16px; padding: 16px; }
+    .lesson { display: grid; gap: 12px; }
+    .read-cta { font-size: 12px; color: var(--muted); cursor: pointer; }
+    .vocab-list { display: grid; gap: 8px; }
+    .vocab-item { font-weight: 800; font-size: 18px; }
+    .mcq label { display: block; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; margin-top: 8px; cursor: pointer; }
+    .ai-fab { position: fixed; right: 24px; bottom: 24px; width: 64px; height: 64px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); color: #0b1020; font-weight: 900; box-shadow: 0 12px 30px rgba(255,122,217,0.25); cursor: pointer; }
+    .ai-panel { position: fixed; right: 24px; bottom: 100px; width: 320px; max-width: calc(100% - 48px); border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 16px; padding: 12px; display: none; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="logo">🦉</span>
+        <span class="brand-name" data-i18n="brand">CINDIE</span>
+      </div>
+      <nav class="nav">
+        <a href="#" aria-label="search icon">🔎</a>
+        <a href="./dashboard.html">dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container two-col">
+      <section>
+        <div class="surface" style="margin-bottom: 16px; display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:end;">
+          <div>
+            <h1 id="course-title" style="margin:0 0 8px;">Course Title</h1>
+            <p class="auth-muted" style="margin:0;">AI-guided interactive lesson</p>
+          </div>
+          <div>
+            <label for="course-picker" class="auth-muted" style="display:block; margin-bottom:6px;">Catalog</label>
+            <select id="course-picker" class="input" style="min-width: 260px;"></select>
+          </div>
+        </div>
+
+        <div class="surface lesson">
+          <article>
+            <p>Today, we explore perfect tenses with simple, clear examples. Notice how timing and completion affect verb forms.</p>
+            <div class="read-cta" data-tts="Today, we explore perfect tenses with simple, clear examples. Notice how timing and completion affect verb forms.">🔊 Read out loud</div>
+          </article>
+          <article>
+            <p>Stories help contextualize grammar. Maria has finished her work, and she has gone to the library.</p>
+            <div class="read-cta" data-tts="Stories help contextualize grammar. Maria has finished her work, and she has gone to the library.">🔊 Read out loud</div>
+          </article>
+          <article>
+            <p>News-style passages can reinforce comprehension while introducing new vocabulary.</p>
+            <div class="read-cta" data-tts="News-style passages can reinforce comprehension while introducing new vocabulary.">🔊 Read out loud</div>
+          </article>
+        </div>
+      </section>
+
+      <aside class="surface" aria-label="Right column">
+        <section class="mcq">
+          <h3 style="margin-top:0;">Questions</h3>
+          <div>
+            <div class="auth-muted">Choose the correct answer:</div>
+            <label><input type="radio" name="q1" style="display:none;" /> answer1</label>
+            <label><input type="radio" name="q1" style="display:none;" /> answer2</label>
+            <label><input type="radio" name="q1" style="display:none;" /> answer3</label>
+            <label><input type="radio" name="q1" style="display:none;" /> answer4</label>
+          </div>
+          <div style="margin-top:10px;">
+            <div class="auth-muted">Another question:</div>
+            <label><input type="radio" name="q2" style="display:none;" /> answer1</label>
+            <label><input type="radio" name="q2" style="display:none;" /> answer2</label>
+            <label><input type="radio" name="q2" style="display:none;" /> answer3</label>
+            <label><input type="radio" name="q2" style="display:none;" /> answer4</label>
+          </div>
+        </section>
+
+        <section style="margin-top:16px;">
+          <h3 style="margin-top:0;">New vocabulary</h3>
+          <div class="vocab-list">
+            <div class="vocab-item">word1</div>
+            <div class="vocab-item">word2</div>
+            <div class="vocab-item">word3</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <button id="ai-fab" class="ai-fab" title="AI Assistant">AI</button>
+    <div id="ai-panel" class="ai-panel">
+      <div style="font-weight:800; margin-bottom:6px;">AI Assistant</div>
+      <div class="auth-muted">Ask me to explain answers or give hints for exercises.</div>
+    </div>
+  </main>
+
+  <script>
+    // simple TTS for read-out-loud tooltips
+    function speak(text) {
+      try {
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.0; u.pitch = 1.0; u.lang = 'en-US';
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      } catch (_) {}
+    }
+    document.querySelectorAll('.read-cta').forEach(el => {
+      el.addEventListener('click', () => speak(el.getAttribute('data-tts') || ''));
+      el.title = 'The text can be read out loud for pronunciation assistance';
+    });
+
+    // floating assistant toggle
+    const fab = document.getElementById('ai-fab');
+    const panel = document.getElementById('ai-panel');
+    fab?.addEventListener('click', () => {
+      if (!panel) return;
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    });
+  </script>
+  <script src="./js/ai-courses.js"></script>
+</body>
+</html>
+
+
