@@ -9,7 +9,7 @@ dotenv.config();
 if (!admin.apps.length) {
   try {
     // Try to use the service account file in the root directory
-    const keyPath = './cindie-ai-firebase-adminsdk-fbsvc-0d1e7b197a.json';
+    const keyPath = './cindieai.json';
     if (fs.existsSync(keyPath)) {
       const serviceAccountJson = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
       admin.initializeApp({
